@@ -1,3 +1,7 @@
+.env
+__pycache__/
+*.pyc
+
 # Miscellaneous
 *.class
 *.log
@@ -32,6 +36,31 @@ migrate_working_dir/
 .pub/
 /build/
 /coverage/
+
+# Flutter/Dart
+.packages
+flutter_export_environment.sh
+
+# Platforms build
+android/.gradle/
+android/app/build/
+ios/Pods/
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+macos/Pods/
+web/.dart_tool/
+linux/build/
+windows/build/
+
+# IDE
+.vscode/
+.idea/
+*.iml
+
+# Misc
+*.log
+.DS_Store
+"@ | Out-File -Encoding utf8 .gitignore
 
 # Symbolication related
 app.*.symbols
