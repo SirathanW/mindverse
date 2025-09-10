@@ -4,24 +4,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 
-/// ====== Proxy URL: คำนวณอัตโนมัติ และรองรับ override ด้วย ?proxy= ======
+/// ====== Proxy URL: ชี้ไปที่ Backend จริง (คงที่ทุกโหมด) ======
 final String PROXY_BASE_URL = _computeProxyBaseUrl();
 
 String _computeProxyBaseUrl() {
-  // Production: ชี้โดเมน proxy จริงของคุณ
-  if (kReleaseMode) {
-    return 'https://your-proxy.example.com'; // <-- เปลี่ยนเป็นของคุณ
-  }
-  // Dev on Web: อนุญาต override ผ่าน query string
-  if (kIsWeb) {
-    final params = Uri.base.queryParameters;
-    final fromQuery = params['proxy'];
-    if (fromQuery != null && fromQuery.isNotEmpty) return fromQuery;
-    // ถ้าไม่ส่ง ?proxy= มา ให้ใช้ host เดียวกับที่เสิร์ฟเว็บ + พอร์ต 8080
-    return '${Uri.base.scheme}://${Uri.base.host}:8080';
-  }
-  // Dev on device/emulator: default ไป 10.0.2.2:8080 (Android) / ปกติก็ใช้ได้บน iOS Simulator
-  return 'http://10.0.2.2:8080';
+  // ใช้ Backend จริงที่โฮสต์บน Render เสมอ เพื่อให้เครื่องไหนก็เข้าถึงได้
+  return 'https://mindverse-backend-xwj9.onrender.com';
 }
 
 /// ====== HTTP Helper (รองรับเว็บ/มือถือ) ======
