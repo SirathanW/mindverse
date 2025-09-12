@@ -2,20 +2,26 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart' show kIsWeb, kReleaseMode;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
-/// ====== Proxy URL: ชี้ไปที่ Backend จริง (คงที่ทุกโหมด) ======
-final String PROXY_BASE_URL = _computeProxyBaseUrl();
-
-String _computeProxyBaseUrl() {
-  // ใช้ Backend จริงที่โฮสต์บน Render เสมอ เพื่อให้เครื่องไหนก็เข้าถึงได้
-  return 'https://mindverse-backend-xwj9.onrender.com';
-}
+/// ====== Proxy URL จาก ENV (dart-define) ======
+/// ใช้: flutter run --dart-define=BACKEND_BASE_URL=https://<your-backend>
+/// หรือ  flutter build web --dart-define=BACKEND_BASE_URL=https://<your-backend>
+const String PROXY_BASE_URL =
+    String.fromEnvironment('BACKEND_BASE_URL', defaultValue: '');
 
 /// ====== HTTP Helper (รองรับเว็บ/มือถือ) ======
 Future<Map<String, dynamic>> postJson(String path, Map<String, dynamic> body,
     {Duration timeout = const Duration(seconds: 30)}) async {
+  if (PROXY_BASE_URL.isEmpty) {
+    return {
+      'error': 'missing_backend_url',
+      'message': 'โปรดตั้งค่า BACKEND_BASE_URL ผ่าน --dart-define'
+    };
+  }
   final url = Uri.parse('$PROXY_BASE_URL$path');
+
   try {
     final resp = await http
         .post(url,
@@ -588,8 +594,8 @@ class _ChatAIPageState extends State<ChatAIPage> {
     });
     c.clear();
 
-    final resp = await postJson('/rag-chat', {
-      'query': text,
+    final resp = await postJson('/chat', {
+      'input': text,
       'meta': {
         'name': widget.profile.name,
         'lang': widget.profile.language,
