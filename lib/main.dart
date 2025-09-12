@@ -5,11 +5,18 @@ import 'package:flutter/services.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
-/// ====== Proxy URL จาก ENV (dart-define) ======
-/// ใช้: flutter run --dart-define=BACKEND_BASE_URL=https://<your-backend>
-/// หรือ  flutter build web --dart-define=BACKEND_BASE_URL=https://<your-backend>
-const String PROXY_BASE_URL =
-    String.fromEnvironment('BACKEND_BASE_URL', defaultValue: '');
+/// ====== Proxy URL: โหลดจาก .env (override ได้ด้วย --dart-define) ======
+late final String PROXY_BASE_URL;
+
+String _resolveBackendBaseUrl() {
+  // 1) ให้สิทธิ์ --dart-define override ก่อน
+  const fromDefine =
+      String.fromEnvironment('BACKEND_BASE_URL', defaultValue: '');
+  if (fromDefine.isNotEmpty) return fromDefine;
+
+  // 2) fallback มาอ่านจาก .env
+  return dotenv.env['BACKEND_BASE_URL'] ?? '';
+}
 
 /// ====== HTTP Helper (รองรับเว็บ/มือถือ) ======
 Future<Map<String, dynamic>> postJson(String path, Map<String, dynamic> body,
@@ -48,6 +55,13 @@ const _goldLight = Color(0xFFFFF0B8);
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
+
+  // ✅ โหลดค่าจากไฟล์ .env
+  await dotenv.load(fileName: ".env");
+
+  // ✅ สรุปค่า BASE_URL (ให้ --dart-define ชนะ .env)
+  PROXY_BASE_URL = _resolveBackendBaseUrl();
+
   runApp(const MindVerseApp());
 }
 
@@ -572,7 +586,7 @@ class _AuraScanPageState extends State<AuraScanPage>
   }
 }
 
-/// ====== หน้าที่ 3: Chat AI (เรียก /rag-chat ผ่าน proxy) ======
+/// ====== หน้าที่ 3: Chat AI (เรียก /chat ผ่าน proxy) ======
 class ChatAIPage extends StatefulWidget {
   final Profile profile;
   const ChatAIPage({super.key, required this.profile});
