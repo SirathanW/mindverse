@@ -566,7 +566,7 @@ class _AuraScanPageState extends State<AuraScanPage>
   }
 }
 
-/// ====== หน้าที่ 3: Chat AI (เรียก /chat ผ่าน proxy) ======
+/// ====== หน้าที่ 3: Chat AI (เรียก /rag-chat ผ่าน proxy) ======
 class ChatAIPage extends StatefulWidget {
   final Profile profile;
   const ChatAIPage({super.key, required this.profile});
@@ -588,8 +588,8 @@ class _ChatAIPageState extends State<ChatAIPage> {
     });
     c.clear();
 
-    final resp = await postJson('/chat', {
-      'input': text,
+    final resp = await postJson('/rag-chat', {
+      'query': text,
       'meta': {
         'name': widget.profile.name,
         'lang': widget.profile.language,
